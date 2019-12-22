@@ -17,8 +17,9 @@ type Config struct {
 	Encoding string `default:"utf8"`
 	User     string `default:"root"`
 	Password string `required:"true"`
-	TablePrefix string  //数据表前缀
-	TableSuffix string  //数据表后缀
+	Prefix string  //数据表前缀
+	Suffix string  //数据表后缀
+	LogMode bool  `default:"false"`
 }
 
 
@@ -45,14 +46,14 @@ func New(cnf Config, debug bool, models ...interface{}) *gorm.DB {
 
 	// 创建表时添加表前缀/后缀
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return cnf.TablePrefix + defaultTableName + cnf.TableSuffix
+		return cnf.Prefix + defaultTableName + cnf.Suffix
 	} 
 
 	if len(models) > 0 {
 		// 自动迁移模式
 		jdb.AutoMigrate(models...)
 	}
-
+	jdb.LogMode(cnf.LogMode)
 	dbList[cnf.Alias] = jdb
 	return jdb
 }
