@@ -17,11 +17,10 @@ type Config struct {
 	Encoding string `default:"utf8"`
 	User     string `default:"root"`
 	Password string `required:"true"`
-	Prefix string  //数据表前缀
-	Suffix string  //数据表后缀
-	LogMode bool  `default:"false"`
+	Prefix   string //数据表前缀
+	Suffix   string //数据表后缀
+	LogMode  bool   `default:"false"`
 }
-
 
 var (
 	//多数据库支持，根据别名定位数据库连接
@@ -38,7 +37,7 @@ func New(cnf Config, debug bool, models ...interface{}) *gorm.DB {
 		jdb, err = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local", cnf.User, cnf.Password, cnf.Host, cnf.Port, cnf.DataBase, cnf.Encoding))
 	}
 	if err != nil {
-		panic("连接数据库失败:"+err.Error())
+		panic("连接数据库失败(" + cnf.Adapter + "):" + err.Error())
 	}
 	if debug {
 		jdb.Debug()
@@ -47,7 +46,7 @@ func New(cnf Config, debug bool, models ...interface{}) *gorm.DB {
 	// 创建表时添加表前缀/后缀
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
 		return cnf.Prefix + defaultTableName + cnf.Suffix
-	} 
+	}
 
 	if len(models) > 0 {
 		// 自动迁移模式
